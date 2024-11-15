@@ -42,14 +42,14 @@ pipeline {
         }
       }
     }
-    stage('Update Deployment File') {
+   /* stage('Update Deployment File') {
     environment {
         GIT_REPO_NAME = "Jovac_jenkins"
         GIT_USER_NAME = "Yashsharma2004"
     }
     steps {
         // Commented out the actual script to bypass execution
-        /*
+        
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
             sh '''
                 git config user.email "yashsharma2004.mtr@gmail.com"
@@ -61,11 +61,12 @@ pipeline {
                 git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
             '''
         }
-        */
+        
 
         // Simulate a successful step
         echo 'Skipped updating deployment file; pipeline step passed successfully.'
         }
       }
+*/
   }
 }
