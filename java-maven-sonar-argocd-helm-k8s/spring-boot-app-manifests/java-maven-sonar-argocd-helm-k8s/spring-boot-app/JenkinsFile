@@ -8,8 +8,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        // Ensure this step is active and correctly configured
-        git branch: 'main', url: 'https://github.com/Yashsharma2004/jenkins.git'
+        git branch: 'main', url: 'https://github.com/Yashsharma2004/Jovac_jenkins.git'
         sh 'echo Checkout completed'
       }
     }
@@ -45,18 +44,16 @@ pipeline {
     }
     stage('Update Deployment File') {
       environment {
-        GIT_REPO_NAME = "jovac_jenkins"
+        GIT_REPO_NAME = "Jovac_jenkins"
         GIT_USER_NAME = "Yashsharma2004"
       }
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-        sh '''git config user.email "yashsharma2004.mtr@gmail.com"
+          sh '''#!/bin/bash
+              git config user.email "yashsharma2004.mtr@gmail.com"
               git config user.name "Yashsharma2004"
 
-              # Ensure BUILD_NUMBER is available
               BUILD_NUMBER=${BUILD_NUMBER:-1} # Fallback to 1 if not set
-
-              # Validate and Replace Placeholder in deployment.yml
               DEPLOYMENT_FILE="java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml"
 
               if grep -q "replaceImageTag" "$DEPLOYMENT_FILE"; then
@@ -64,32 +61,16 @@ pipeline {
                 sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" "$DEPLOYMENT_FILE"
               else
                 echo "Error: Placeholder 'replaceImageTag' not found in ${DEPLOYMENT_FILE}."
-                exit 1  
+                exit 1
               fi
 
-              # Validate Changes
               echo "Updated deployment.yml contents:"
               cat "$DEPLOYMENT_FILE"
 
-            # Commit and Push Changes
               git add "$DEPLOYMENT_FILE"
-
-              if git commit -m "Update deployment image to version ${BUILD_NUMBER}"; then
-                echo "Changes committed successfully."
-              else
-                echo "No changes to commit. Exiting..."
-                exit 0
-              fi
-
-              # Push Changes to GitHub
-              git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-              if [ $? -eq 0 ]; then
-                echo "Changes pushed to repository successfully."
-              else
-                echo "Error: Failed to push changes to GitHub."
-                exit 1
-              fi
-            '''
+              git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit."
+              git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main || exit 1
+          '''
         }
       }
     }
